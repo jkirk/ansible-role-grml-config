@@ -1,0 +1,17 @@
+---
+# role: grml-config
+
+- set_fact:
+    home_dir: "/home"
+- set_fact:
+    home_dir: ""
+  when: username == "root"
+- name: Deploy grml-config files for screen zsh vim for user {{ username }}
+  copy: src=files/grml-config/{{ item }} dest={{ home_dir }}/{{ username }}/{{ item }} owner={{ username }} group={{ username }} mode=644 force=true
+  with_items:
+    - .screenrc
+    - .zshrc
+    - .vimrc
+    - .tmux.conf
+- name: Set default shell to zsh for user {{ username }}
+  user: name={{ username }} shell=/bin/zsh
