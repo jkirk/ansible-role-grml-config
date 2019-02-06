@@ -1,12 +1,13 @@
 grml-config
 ===========
 
-A simple role to deploy the awesome Grml configuration files.
+A simple role to deploy the awesome [Grml](https://grml.org) configuration files.
 
 Requirements
 ------------
 
-None.
+Role [base](https://github.com/jkirk/ansible-role-base) is recommended.
+At least zsh, vim, screen and tmux should be installed.
 
 Role Variables
 --------------
@@ -21,11 +22,12 @@ None.
 Example Playbook
 ----------------
 
-```
-    - hosts: site
-      roles:
-         - { role: grml-config, username: "jane_doe" }
-         - { role: grml-config, username: "john_doe" }
+```yaml
+- hosts: site
+  roles:
+     - { role: grml-config, username: "root" }
+     - { role: grml-config, username: "jane_doe" }
+     - { role: grml-config, username: "john_doe" }
 ```
 
 License
@@ -36,4 +38,4 @@ MIT
 Author Information
 ------------------
 
-Darshaka Pathirana
+Darshaka Pathirana - https://synpro.solutions
