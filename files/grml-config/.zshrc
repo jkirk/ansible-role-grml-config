@@ -895,7 +895,7 @@ zle -N end-of-somewhere beginning-or-end-of-somewhere
 
 # add a command line to the shells history without executing it
 function commit-to-history () {
-    print -s ${(z)BUFFER}
+    print -rs ${(z)BUFFER}
     zle send-break
 }
 zle -N commit-to-history
@@ -2269,6 +2269,7 @@ grml_theme_add_token: Token `%s'\'' exists! Giving up!\n\n' $name
         return 2
     fi
     if (( init )); then
+        REPLY=''
         $token $name
         token=$REPLY
     fi
@@ -2314,6 +2315,7 @@ function grml_prompt_addto () {
         zstyle -s ":prompt:${grmltheme}:${lr}:items:$it" token new \
             || new=${grml_prompt_token_default[$it]}
         if (( ${+grml_prompt_token_function[$it]} )); then
+            REPLY=''
             ${grml_prompt_token_function[$it]} $it
         else
             case $it in
@@ -2525,7 +2527,7 @@ function grml_cmd_to_screen_title () {
 function grml_control_xterm_title () {
     case $TERM in
         (xterm*|rxvt*)
-            set_title "${(%):-"%n@%m:"}" "$1"
+            set_title "${(%):-"%n@%m:"}" "$2"
             ;;
     esac
 }
@@ -2926,9 +2928,6 @@ function sll () {
     return ${RTN}
 }
 
-# TODO: Is it supported to use pager settings like this?
-#   PAGER='less -Mr' - If so, the use of $PAGER here needs fixing
-# with respect to wordsplitting. (ie. ${=PAGER})
 if check_com -c $PAGER ; then
     #f3# View Debian's changelog of given package(s)
     function dchange () {
@@ -2936,13 +2935,28 @@ if check_com -c $PAGER ; then
         [[ -z "$1" ]] && printf 'Usage: %s <package_name(s)>\n' "$0" && return 1
 
         local package
+
+        # `less` as $PAGER without e.g. `|lesspipe %s` inside $LESSOPEN can't properly
+        # read *.gz files, try to detect this to use vi instead iff available
+        local viewer
+
+        if [[ ${$(typeset -p PAGER)[2]} = -a ]] ; then
+          viewer=($PAGER)    # support PAGER=(less -Mr) but leave array untouched
+        else
+          viewer=(${=PAGER}) # support PAGER='less -Mr'
+        fi
+
+        if [[ ${viewer[1]:t} = less ]] && [[ -z "${LESSOPEN}" ]] && check_com vi ; then
+          viewer='vi'
+        fi
+
         for package in "$@" ; do
             if [[ -r /usr/share/doc/${package}/changelog.Debian.gz ]] ; then
-                $PAGER /usr/share/doc/${package}/changelog.Debian.gz
+                $viewer /usr/share/doc/${package}/changelog.Debian.gz
             elif [[ -r /usr/share/doc/${package}/changelog.gz ]] ; then
-                $PAGER /usr/share/doc/${package}/changelog.gz
+                $viewer /usr/share/doc/${package}/changelog.gz
             elif [[ -r /usr/share/doc/${package}/changelog ]] ; then
-                $PAGER /usr/share/doc/${package}/changelog
+                $viewer /usr/share/doc/${package}/changelog
             else
                 if check_com -c aptitude ; then
                     echo "No changelog for package $package found, using aptitude to retrieve it."
@@ -3732,6 +3746,9 @@ if check_com -c hg ; then
     }
 
 fi # end of check whether we have the 'hg'-executable
+
+# disable bracketed paste mode for dumb terminals
+[[ "$TERM" == dumb ]] && unset zle_bracketed_paste
 
 # grml-small cleanups and workarounds
 
