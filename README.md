@@ -1,7 +1,7 @@
 grml-config
 ===========
 
-A simple role to deploy the awesome [Grml](https://grml.org) configuration files.
+A simple role to deploy the awesome [Grml](https://grml.org) [configuration files](https://michael-prokop.at/blog/2007/12/22/make-console-work-comfortable/).
 
 Requirements
 ------------
