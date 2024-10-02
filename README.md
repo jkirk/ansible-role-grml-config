@@ -12,7 +12,8 @@ At least zsh, vim, screen and tmux should be installed.
 Role Variables
 --------------
 
-* `username`: The user to deploy the basic grml-config files.
+* (mandatory) `username`: The user to deploy the basic grml-config files.
+* (mandatory) `grmlconfig_groupname`: The (primary) group name of the grml-config files needs to be set.
 
 Dependencies
 ------------
@@ -25,9 +26,9 @@ Example Playbook
 ```yaml
 - hosts: site
   roles:
-     - { role: grml-config, username: "root" }
-     - { role: grml-config, username: "jane_doe" }
-     - { role: grml-config, username: "john_doe" }
+     - { role: grml-config, username: "root", grmlconfig_groupname: "sysadmin" }
+     - { role: grml-config, username: "jane_doe", grmlconfig_groupname: "sysadmin" }
+     - { role: grml-config, username: "john_doe", grmlconfig_groupname: "sysadmin" }
 ```
 
 License
