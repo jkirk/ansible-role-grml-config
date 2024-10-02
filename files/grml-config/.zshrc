@@ -891,14 +891,21 @@ function grmlcomp () {
     fi
 
     # host completion
+    _etc_hosts=()
+    _ssh_config_hosts=()
+    _ssh_hosts=()
     if is42 ; then
-        [[ -r ~/.ssh/config ]] && _ssh_config_hosts=(${${(s: :)${(ps:\t:)${${(@M)${(f)"$(<$HOME/.ssh/config)"}:#Host *}#Host }}}:#*[*?]*}) || _ssh_config_hosts=()
-        [[ -r ~/.ssh/known_hosts ]] && _ssh_hosts=(${${${${(f)"$(<$HOME/.ssh/known_hosts)"}:#[\|]*}%%\ *}%%,*}) || _ssh_hosts=()
-        [[ -r /etc/hosts ]] && [[ "$NOETCHOSTS" -eq 0 ]] && : ${(A)_etc_hosts:=${(s: :)${(ps:\t:)${${(f)~~"$(grep -v '^0\.0\.0.\0\|^127\.0\.0\.1\|^::1 ' /etc/hosts)"}%%\#*}##[:blank:]#[^[:blank:]]#}}} || _etc_hosts=()
-    else
-        _ssh_config_hosts=()
-        _ssh_hosts=()
-        _etc_hosts=()
+        if [[ -r ~/.ssh/config ]] ; then
+            _ssh_config_hosts=(${${(s: :)${(ps:\t:)${${(@M)${(f)"$(<$HOME/.ssh/config)"}:#Host *}#Host }}}:#*[*?]*})
+        fi
+
+        if [[ -r ~/.ssh/known_hosts ]] ; then
+            _ssh_hosts=(${${${${(f)"$(<$HOME/.ssh/known_hosts)"}:#[\|]*}%%\ *}%%,*})
+        fi
+
+        if [[ -r /etc/hosts ]] && [[ "$NOETCHOSTS" -eq 0 ]] ; then
+            : ${(A)_etc_hosts:=${(s: :)${(ps:\t:)${${(f)~~"$(grep -v '^0\.0\.0\.0\|^127\.0\.0\.1\|^::1 ' /etc/hosts)"}%%\#*}##[:blank:]#[^[:blank:]]#}}}
+        fi
     fi
 
     local localname
@@ -1374,7 +1381,6 @@ zle -N help-zle
 ## complete word from currently visible Screen or Tmux buffer.
 if check_com -c screen || check_com -c tmux; then
     function _complete_screen_display () {
-        [[ "$TERM" != "screen" ]] && return 1
 
         local TMPFILE=$(mktemp)
         local -U -a _screen_display_wordlist
@@ -1385,8 +1391,9 @@ if check_com -c screen || check_com -c tmux; then
             #works, but crashes tmux below version 1.4
             #luckily tmux -V option to ask for version, was also added in 1.4
             tmux -V &>/dev/null || return
-            tmux -q capture-pane \; save-buffer -b 0 $TMPFILE \; delete-buffer -b 0
+            tmux -q capture-pane -b 0 \; save-buffer -b 0 $TMPFILE \; delete-buffer -b 0
         else
+            [[ "$TERM" != "screen" ]] && return
             screen -X hardcopy $TMPFILE
             # screen sucks, it dumps in latin1, apparently always. so recode it
             # to system charset
@@ -2841,7 +2848,7 @@ if [ -e /var/log/syslog ] ; then
   #a1# Take a look at the syslog: \kbd{\$PAGER /var/log/syslog || journalctl}
   salias llog="$PAGER /var/log/syslog"     # take a look at the syslog
   #a1# Take a look at the syslog: \kbd{tail -f /var/log/syslog || journalctl}
-  salias tlog="tail -f /var/log/syslog"    # follow the syslog
+  salias tlog="tail --follow=name /var/log/syslog"    # follow the syslog
 elif check_com -c journalctl ; then
   salias llog="journalctl"
   salias tlog="journalctl -f"
