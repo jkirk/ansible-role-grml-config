@@ -2,14 +2,12 @@
 dependency:
   name: galaxy
 driver:
-  name: docker
+  name: podman
 platforms:
-  - name: lmde4
-    image: linuxmintd/lmde4-amd64
+  - name: instance
+    image: docker.io/geerlingguy/docker-${MOLECULE_DISTRO:-debian12}-ansible:latest
     pre_build_image: true
 provisioner:
   name: ansible
 verifier:
   name: ansible
-lint: |
-  yamllint .

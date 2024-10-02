@@ -7,3 +7,4 @@
         name: "ansible-role-grml-config"
       vars:
         username: "root"
+        grmlconfig_groupname: "root"
