@@ -7,7 +7,7 @@
     home_dir: ""
   when: username == "root"
 - name: Deploy grml-config files for screen zsh vim for user {{ username }}
-  copy: src=files/grml-config/{{ item }} dest={{ home_dir }}/{{ username }}/{{ item }} owner={{ username }} group={{ grmlconfig_groupname }} mode=644 force=true
+  copy: src=files/grml-config/{{ item }} dest={{ home_dir }}/{{ username }}/{{ item }} owner={{ username }} group={{ grmlconfig_groupname|default(username) }} mode=644 force=true
   with_items:
     - .screenrc
     - .zshrc

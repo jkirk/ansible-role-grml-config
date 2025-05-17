@@ -13,7 +13,7 @@ Role Variables
 --------------
 
 * (mandatory) `username`: The user to deploy the basic grml-config files.
-* (mandatory) `grmlconfig_groupname`: The (primary) group name of the grml-config files needs to be set.
+* (optional) `grmlconfig_groupname`: The (primary) group name of the grml-config files needs to be set, defaults to username.
 
 Dependencies
 ------------
