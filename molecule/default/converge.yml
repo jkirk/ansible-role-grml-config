@@ -1,10 +1,14 @@
 ---
 - name: Converge
   hosts: all
-  tasks:
-    - name: "Include ansible-role-grml-config"
-      include_role:
-        name: "ansible-role-grml-config"
+  become: true
+
+  roles:
+    - role: synpro.grmlconfig
+      vars:
+        username: "root"
+
+    - role: synpro.grmlconfig
       vars:
         username: "root"
         grmlconfig_groupname: "root"
